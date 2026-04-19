@@ -225,6 +225,8 @@ class ETL():
             fp.write(city_data)
 
         dbsession = DBSession()
+        if not os.path.exists(os.getcwd() + "/data"):
+            return
         for filename in os.listdir(os.getcwd() + "/data"):
             print("-------")
             print(filename)
