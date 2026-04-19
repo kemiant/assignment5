@@ -1,0 +1,102 @@
+BEGIN (implicit)
+PRAGMA main.table_info("admin")
+[raw sql] ()
+PRAGMA temp.table_info("admin")
+[raw sql] ()
+PRAGMA main.table_info("user")
+[raw sql] ()
+PRAGMA temp.table_info("user")
+[raw sql] ()
+PRAGMA main.table_info("city")
+[raw sql] ()
+PRAGMA temp.table_info("city")
+[raw sql] ()
+PRAGMA main.table_info("usercity")
+[raw sql] ()
+PRAGMA temp.table_info("usercity")
+[raw sql] ()
+PRAGMA main.table_info("weatherparameter")
+[raw sql] ()
+PRAGMA temp.table_info("weatherparameter")
+[raw sql] ()
+
+CREATE TABLE admin (
+	id INTEGER NOT NULL, 
+	name VARCHAR, 
+	password VARCHAR, 
+	PRIMARY KEY (id)
+)
+
+
+[no key 0.00006s] ()
+
+CREATE TABLE user (
+	id INTEGER NOT NULL, 
+	name VARCHAR, 
+	password VARCHAR, 
+	PRIMARY KEY (id)
+)
+
+
+[no key 0.00009s] ()
+
+CREATE TABLE city (
+	id INTEGER NOT NULL, 
+	name VARCHAR, 
+	url VARCHAR, 
+	"adminId" INTEGER, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY("adminId") REFERENCES admin (id)
+)
+
+
+[no key 0.00007s] ()
+
+CREATE TABLE usercity (
+	id INTEGER NOT NULL, 
+	"cityId" INTEGER, 
+	"userId" INTEGER, 
+	year VARCHAR, 
+	month VARCHAR, 
+	weather_params VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY("cityId") REFERENCES city (id), 
+	FOREIGN KEY("userId") REFERENCES user (id)
+)
+
+
+[no key 0.00008s] ()
+
+CREATE TABLE weatherparameter (
+	id INTEGER NOT NULL, 
+	year_month_param VARCHAR, 
+	"values" VARCHAR, 
+	"cityId" INTEGER, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY("cityId") REFERENCES city (id)
+)
+
+
+[no key 0.00006s] ()
+COMMIT
+Portal started...
+ * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+ * Running on https://192.168.86.202:5009/ (Press CTRL+C to quit)
+BEGIN (implicit)
+PRAGMA main.table_info("admin")
+[raw sql] ()
+PRAGMA main.table_info("user")
+[raw sql] ()
+PRAGMA main.table_info("city")
+[raw sql] ()
+PRAGMA main.table_info("usercity")
+[raw sql] ()
+PRAGMA main.table_info("weatherparameter")
+[raw sql] ()
+COMMIT
+Inside ETL.
+BEGIN (implicit)
+SELECT city.id AS city_id, city.name AS city_name, city.url AS city_url, city."adminId" AS "city_adminId" 
+FROM city
+[generated in 0.00042s] ()
