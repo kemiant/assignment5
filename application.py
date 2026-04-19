@@ -208,39 +208,36 @@ class ETL():
 
     def _get_cities(self):
         dbsession = DBSession()
-        cities = dbsession.query(City)
+        cities = [(c.name, c.url) for c in dbsession.query(City)]
+        dbsession.close()
         return cities
 
     def _load_data(self):
         cities = self._get_cities()
-        for city in cities:
-            city_name = city.name
-            city_url = city.url
+        for city_name, city_url in cities:
             r = requests.get(city_url)
-            # 1. Assignment 4 TODO: Check if the city has data available by checking for return code 404
             city_data = r.text
             data_dir = os.getcwd() + "/data"
             os.system("mkdir -p " + data_dir)
             fp = open(data_dir + "/" + city_name,"w")
             fp.write(city_data)
+            fp.close()
 
-        dbsession = DBSession()
         if not os.path.exists(os.getcwd() + "/data"):
             return
+
         for filename in os.listdir(os.getcwd() + "/data"):
             print("-------")
             print(filename)
             fPath = os.getcwd() + "/data/" + filename
             fp = open(fPath,"r")
             lines = fp.readlines()
+            fp.close()
             param_values = {}
-            #for l in range(0, len(lines)-2, 2):
             for l in range(0, len(lines)):
                 if l+1 > len(lines):
                     break
-                #line = lines[l] + lines[l+1]
                 line = lines[l]
-                #print(line)
                 parts = line.split(" ")
                 year_month_param = parts[0]
                 rest = year_month_param[11:]
@@ -248,7 +245,6 @@ class ETL():
                 month = rest[4:6]
                 param = rest[6:]
                 if param in weather_parameters_to_track:
-                    #print(year + " " + month + " " + param)
                     values1 = []
                     values = []
                     for i in range(len(parts)):
@@ -260,7 +256,7 @@ class ETL():
                     for j in range(0, len(values1), 2):
                         values.append(values1[j])
                     param_values[year+"-"+month+"-"+param] = values
-            #print(param_values)
+            dbsession = DBSession()
             for key, val in param_values.items():
                 valString = ','.join(val)
                 city = dbsession.query(City).filter_by(name=filename).first()
@@ -270,6 +266,7 @@ class ETL():
                         weather_params = WeatherParameter(year_month_param=key, values=valString, cityId=city.id)
                         dbsession.add(weather_params)
                         dbsession.commit()
+            dbsession.close()
 
     def run(self):
         while True:
